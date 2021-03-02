@@ -2,7 +2,7 @@
 
 const { Model, DataTypes } = require('sequelize');
 const sequelize = require('../config/connection');
-
+const bcrypt = require('bcrypt');
 //create our User Model
 class User extends Model {}
 
@@ -42,8 +42,22 @@ User.init(
             }
         }
     },
-    //TABLE CONFIGURATION OPTIONS GO HERE
     {
+        hooks: {
+            //set up beforeCreate lifecycle "hook" Functionality
+            async beforeCreate(newUserData) {
+                newUserData.password = await bcrypt.hash(newUserData.password, 10);
+                    return newUserData;
+                },
+                //set up beforeUpdate "hook"
+                async beforeUpdate(updatedUserData) {
+                    updatedUserData.password = await bcrypt.hash(updatedUserData.password, 10);
+                    return updatedUserData;
+                }
+            },
+    
+    //TABLE CONFIGURATION OPTIONS GO HERE
+    
     //sequelize connection
     sequelize,
     //don't automatically create timsestamp field
