@@ -85,7 +85,7 @@ router.get('/:id', (req, res) => {
         });
     });
     //PUT /api/posts/upvote
-    outer.put('/upvote', (req, res) => {
+    router.put('/upvote', (req, res) => {
         // custom static method created in models/Post.js
         Post.upvote(req.body, { Vote, Comment, User })
           .then(updatedVoteData => res.json(updatedVoteData))
