@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const e = require('express');
 const { User } = require('../../models');
 
 //GET api/users
@@ -43,11 +44,15 @@ router.post('/', (req, res) => {
         email: req.body.email,
         password: req.body.password
     })
-    .then(dbUserData => res.json(dbUserData))
-    .catch(err => {
-        console.log(err);
-        res.status(500).json(err);
-    });
+    .then(dbUserData => {
+    req.session.save(() => {
+        req.session.user_id = dbUserData.id;
+        req.session.username = dbUserData.username;
+        req.session.loggedIn = true;
+
+        res.json(dbUserData);
+    });    
+});
 });
 router.post('/login', (req, res) => {
     //query operation
@@ -63,12 +68,19 @@ router.post('/login', (req, res) => {
       
         //verify user
         const validPassword = dbUserData.checkPassord(req.body.password);
+
         if (!validPassword) {
             res.status(400).json({  message: 'Incorrect password!' });
-            return;
+            return;            
         }
+        req.session.save(() => {
+            req.session.user_id = dbUserData.id;
+            req.session.username = dbUserData.username;
+            req.session.loggedIn = true;
+        
         res.json({  user: dbUserData, message: 'You are now logged in!' });
     });
+});
 });
 //PUT api/users/1
 router.put('/:id', (req, res) => {
@@ -112,6 +124,16 @@ router.delete('/:id', (req, res) => {
         console.log(err);
         res.status(500).json(err);
     });
+});
+//logout
+router.post('/logout', (req, res) => {
+    if (req.session.loggedIn) {
+        req.session.destroy(() => {
+        });
+    }
+    else {
+        res.status(204).end();
+    }
 });
 
 module.exports = router;
