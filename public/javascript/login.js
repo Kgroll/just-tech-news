@@ -1,31 +1,53 @@
-
-async function commentFormHandler(event) {
+async function loginFormHandler(event) {
   event.preventDefault();
 
-  const comment_text = document.querySelector('textarea[name="comment-body"]').value.trim();
-  const post_id = window.location.toString().split('/')[
-    window.location.toString().split('/').length - 1
-  ];
+  const email = document.querySelector('#email-login').value.trim();
+  const password = document.querySelector('#password-login').value.trim();
 
-  if (comment_text) {
-    const response = await fetch('/api/comments', {
-      method: 'POST',
+  if (email && password) {
+    const response = await fetch('/api/users/login', {
+      method: 'post',
       body: JSON.stringify({
-        post_id,
-        comment_text
+        email,
+        password
       }),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+      headers: { 'Content-Type': 'application/json' }
     });
 
     if (response.ok) {
-      document.location.reload();
+      document.location.replace('/dashboard/');
     } else {
       alert(response.statusText);
     }
   }
 }
+
+async function signupFormHandler(event) {
+  event.preventDefault();
+
+  const username = document.querySelector('#username-signup').value.trim();
+  const email = document.querySelector('#email-signup').value.trim();
+  const password = document.querySelector('#password-signup').value.trim();
+
+  if (username && email && password) {
+    const response = await fetch('/api/users', {
+      method: 'post',
+      body: JSON.stringify({
+        username,
+        email,
+        password
+      }),
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    if (response.ok) {
+      document.location.replace('/dashboard/');
+    } else {
+      alert(response.statusText);
+    }
+  }
+}
+
 document.querySelector('.login-form').addEventListener('submit', loginFormHandler);
 
 document.querySelector('.signup-form').addEventListener('submit', signupFormHandler);
